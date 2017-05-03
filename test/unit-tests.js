@@ -4,7 +4,6 @@ const faker = require('faker');
 const mongoose = require('mongoose');
 
 const should = chai.should();
-console.log('This is what should is:',should);
 const {
 	runServer,
 	app,
@@ -58,7 +57,7 @@ describe('blog posts testing suite', function() {
     return closeServer();
   });
   describe('GET endpoints', function() {
-    it.only('should return all the blog posts', function() {
+    it('should return all the blog posts', function() {
       let res;
       return chai.request(app)
         .get('/posts')
@@ -72,7 +71,29 @@ describe('blog posts testing suite', function() {
           res.body.should.have.length.of(count);
         });
     });
+    it('should return blog posts with the right fields', function() {
+      let resPost;
+      return chai.request(app)
+      .get('/posts')
+      .then(function(res) {
+        res.should.be.json;
+        res.body.should.be.a('array');
+        res.body.forEach(function(post) {
+          post.should.be.a('object');
+          post.should.include.keys('id', 'author', 'content', 'created', 'title');
+        })
+        resPost = res.body[0];
+				return BlogPost.findById(resPost.id);
+      })
+			.then(function(post) {
+				// console.log(resPost);
+				// console.log(resPost.author);
+				// console.log(post.author);
+				resPost.id.should.equal(post.id);
+				resPost.title.should.equal(post.title);
+				resPost.author.should.equal(post.authorName);
+				resPost.content.should.equal(post.content);
+			})
+    })
   });
 });
-
-
