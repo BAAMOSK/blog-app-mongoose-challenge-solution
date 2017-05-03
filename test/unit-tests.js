@@ -145,7 +145,7 @@ describe('blog posts testing suite', function() {
   });
 
   describe('DELETE endpoints', function() {
-    it.only('it should delete post', function() {
+    it('it should delete post', function() {
       let post;
       return BlogPost
 			.findOne()
