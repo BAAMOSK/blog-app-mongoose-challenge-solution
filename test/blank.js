@@ -1,16 +1,33 @@
+const mongoose = require('mongoose');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const faker = require('faker');
+const {DATABASE_URL} = require('../config.js')
+const {runServer, app, closeServer} = require('../server');
+const {BlogPost} = require('../models');
 
-function generateBlogPosts() {
-  return {
-    title: faker.book.title(),
-    author: {
-      firstName: faker.first_name(),
-      lastName: faker.last_name()
-    },
-    content: faker.howIMetYourMother.quote(),
-    created: faker.date()
-  };
+mongoose.Promise = global.Promise;
+
+
+function seedData() {
+	let data = [];
+	for (let i = 0; i < 10; i++) {
+		data.push(generateBlogPosts());
+	}
+	return BlogPost.insertMany(data).then(results => {
+		console.log('done');
+	});
 }
 
-var testing = generateBlogPosts();
-console.log(testing);
+function generateBlogPosts() {
+	return {
+		title: faker.name.title(),
+		author: {
+			firstName: faker.name.firstName(),
+			lastName: faker.name.lastName()
+		},
+		content: faker.lorem.sentence(),
+		created: faker.date.past()
+	};
+};
+seedData();
