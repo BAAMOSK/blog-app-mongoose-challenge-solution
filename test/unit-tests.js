@@ -98,7 +98,7 @@ describe('blog posts testing suite', function() {
   });
 
   describe('POST endpoints', function() {
-    it.only('should add a new blog post', function () {
+    it('should add a new blog post', function () {
       const newPost = generateBlogPosts();
       return chai.request(app)
 			.post('/posts')
@@ -113,5 +113,24 @@ describe('blog posts testing suite', function() {
 });
     });			
   });
+	describe('PUT endpoints', function() {
+		it.only('should update fields you send over', function() {
+			const updateData = {
+				title: faker.name.title()
+			}
+			return BlogPost
+				.findOne()
+				.exec()
+				.then(function(post) {
+					updateData.id = post.id;
+					return chai.request(app)
+					.put(`/posts/${post.id}`)
+					.send(updateData);
+				})
+				.then(function(res) {
+					res.should.have.status()
+				})
+		})
+	})
 
 });
