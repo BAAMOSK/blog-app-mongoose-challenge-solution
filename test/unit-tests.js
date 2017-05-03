@@ -81,19 +81,37 @@ describe('blog posts testing suite', function() {
         res.body.forEach(function(post) {
           post.should.be.a('object');
           post.should.include.keys('id', 'author', 'content', 'created', 'title');
-        })
+        });
         resPost = res.body[0];
-				return BlogPost.findById(resPost.id);
+        return BlogPost.findById(resPost.id);
       })
 			.then(function(post) {
 				// console.log(resPost);
 				// console.log(resPost.author);
 				// console.log(post.author);
-				resPost.id.should.equal(post.id);
-				resPost.title.should.equal(post.title);
-				resPost.author.should.equal(post.authorName);
-				resPost.content.should.equal(post.content);
-			})
-    })
+  resPost.id.should.equal(post.id);
+  resPost.title.should.equal(post.title);
+  resPost.author.should.equal(post.authorName);
+  resPost.content.should.equal(post.content);
+});     
+    });
   });
+
+  describe('POST endpoints', function() {
+    it.only('should add a new blog post', function () {
+      const newPost = generateBlogPosts();
+      return chai.request(app)
+			.post('/posts')
+			.send(newPost)
+			.then(function(res) {
+  res.should.have.status(201);
+  res.body.should.be.a('object');
+  res.should.be.json;
+  res.body.should.include.keys('id', 'author', 'content', 'created', 'title');
+  res.body.should.not.be.null;
+  res.body.id.should.equal(res.body.id);
+});
+    });			
+  });
+
 });
