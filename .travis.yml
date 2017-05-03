@@ -1,0 +1,11 @@
+language: node_js
+node_js: node
+services:
+- mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: ywrDtse/FLHd23o95qE+g1lcUMXYCdK/V+oLSTDYLRoOTmB2yHtKxv9LI5pJ4ZuFw2C0Drikf+AgbUdtumlSoGYeoaIHZJMw3HZUSmsyyzTp3nVkTBFJRQyr4aOOl1DTVFQRwBjLYkGQHWlCi+vgjD2PWP03QE+fnCLKRfM2ow9Iy1DCtBnl6FPwM62y5Vx9PFh/xNvzoxqZRLaSZbYSmevlJfYyUpqPLxUvWSPERdtFGQB+0MMJ6Jm/oFR0U+OojjIjcjuM6QxzXFkDelVa7O1zfHHfG/NAxQGzEfK5WaZ7BPOO9OEtund6R7nzIFV4qmA/C6ZxOcgrGPIhCVyW4LZqeSuGRQFchYVOTtLqSCvDowIbjs41newDZr/5uQq3NLzP2hO5MY9Lyr18PSV4t+l64VhFHGW0va6zzVe+ETjGqJs6/7iqU9YKyYrmICC5jP2vaNX1JzpeB/phATqWAxVfDRvDzLGmPOhANvOeMbKh+JgVdljJ5+BxbbU9ZhP0Q+znap22eJzv2dmIpYmC/TQA20pIqGDJL3Phb77zXiWzqZphy9VtDI01cw00ft36HWxtrmbH7Qzd1Q2Ysv4GZVaFTqcJMxlZJK5Kkg0lnvBzv+gDc0t5ftOJyaaLorMaCwlExK4XzeXV1ceYqwIq6O2MSWUiTuxcxyw9xvsr7HA=
+  app: ancient-island-27396
+  on:
+    repo: BAAMOSK/blog-app-mongoose-challenge-solution
