@@ -93,7 +93,7 @@ describe('blog posts testing suite', function() {
   resPost.title.should.equal(post.title);
   resPost.author.should.equal(post.authorName);
   resPost.content.should.equal(post.content);
-});     
+});
     });
   });
 
@@ -111,24 +111,33 @@ describe('blog posts testing suite', function() {
   res.body.should.not.be.null;
   res.body.id.should.equal(res.body.id);
 });
-    });			
+    });
   });
 	describe('PUT endpoints', function() {
 		it.only('should update fields you send over', function() {
 			const updateData = {
 				title: faker.name.title()
 			}
+			const oldItemAuthor = {}
 			return BlogPost
 				.findOne()
 				.exec()
 				.then(function(post) {
 					updateData.id = post.id;
+					oldItemAuthor.author = post.authorName;
 					return chai.request(app)
 					.put(`/posts/${post.id}`)
 					.send(updateData);
 				})
 				.then(function(res) {
-					res.should.have.status()
+					res.should.have.status(201);
+					console.log(oldItemAuthor);
+
+					return BlogPost.findById(updateData.id).exec();
+				})
+				.then(function(post) {
+					post.authorName.should.equal(oldItemAuthor.author);
+					post.title.should.equal(updateData.title);
 				})
 		})
 	})
