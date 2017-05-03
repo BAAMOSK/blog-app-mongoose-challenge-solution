@@ -56,6 +56,7 @@ describe('blog posts testing suite', function() {
   after(function() {
     return closeServer();
   });
+
   describe('GET endpoints', function() {
     it('should return all the blog posts', function() {
       let res;
@@ -113,33 +114,52 @@ describe('blog posts testing suite', function() {
 });
     });
   });
-	describe('PUT endpoints', function() {
-		it.only('should update fields you send over', function() {
-			const updateData = {
-				title: faker.name.title()
-			}
-			const oldItemAuthor = {}
-			return BlogPost
+
+  describe('PUT endpoints', function() {
+    it('should update fields you send over', function() {
+      const updateData = {
+        title: faker.name.title()
+      };
+      const oldItemAuthor = {};
+      return BlogPost
 				.findOne()
 				.exec()
 				.then(function(post) {
-					updateData.id = post.id;
-					oldItemAuthor.author = post.authorName;
-					return chai.request(app)
+  updateData.id = post.id;
+  oldItemAuthor.author = post.authorName;
+  return chai.request(app)
 					.put(`/posts/${post.id}`)
 					.send(updateData);
-				})
+})
 				.then(function(res) {
-					res.should.have.status(201);
-					console.log(oldItemAuthor);
+  res.should.have.status(201);
+  console.log(oldItemAuthor);
 
-					return BlogPost.findById(updateData.id).exec();
-				})
+  return BlogPost.findById(updateData.id).exec();
+})
 				.then(function(post) {
-					post.authorName.should.equal(oldItemAuthor.author);
-					post.title.should.equal(updateData.title);
-				})
-		})
-	})
+  post.authorName.should.equal(oldItemAuthor.author);
+  post.title.should.equal(updateData.title);
+});
+    });
+  });
+
+  describe('DELETE endpoints', function() {
+    it.only('it should delete post', function() {
+      let post;
+      return BlogPost
+			.findOne()
+			.exec()
+			.then(function(_post) {
+  post = _post;
+  return chai.request(app)				
+				.delete(`/posts/${post.id}`);								
+})
+			.then(function(res) {
+  res.should.have.status(204);
+  return BlogPost.findById(post.id);
+});
+    });
+  });
 
 });
