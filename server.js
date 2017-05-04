@@ -2,6 +2,8 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
+const passport = require('passport');
+const {BasicStrategy} = require('passport-http')
 
 const {
 	DATABASE_URL,
@@ -18,6 +20,31 @@ app.use(morgan('common'));
 app.use(bodyParser.json());
 
 mongoose.Promise = global.Promise;
+
+const basicStrategy = new BasicStrategy((username, password, callback) => {
+  let user;
+  User
+    .findOne({username: username})
+    .exec()
+    .then(_user => {
+      user = _user;
+      if (!user) {
+        return callback(null, false, {message: 'Incorrect username'});
+      }
+      return user.validatePassword(password);
+    })
+    .then(isValid => {
+      if (!isValid) {
+        return callback(null, false, {message: 'Incorrect password'});
+      }
+      else {
+        return callback(null, user)
+      }
+    });
+});
+
+passport.use(basicStrategy);
+app.use(passport.initialize());
 
 app.get('/posts', (req, res) => {
   BlogPost
@@ -56,6 +83,66 @@ app.get('/users', (req, res) => {
 		res.status(201).json(users);
 	})
 })
+app.post('/users', (req, res) => {
+	if (!req.body) {
+    return res.status(400).json({message: 'No request body'});
+  }
+
+  if (!('username' in req.body)) {
+    return res.status(422).json({message: 'Missing field: username'});
+  }
+
+  let {username, password, firstName, lastName} = req.body;
+
+  if (typeof username !== 'string') {
+    return res.status(422).json({message: 'Incorrect field type: username'});
+  }
+	username = username.trim();
+
+	if (username === '') {
+		return res.status(422).json({message: 'Incorrect field length: username'});
+	}
+
+	if (!(password)) {
+		return res.status(422).json({message: 'Missing field: password'});
+	}
+
+	if (typeof password !== 'string') {
+		return res.status(422).json({message: 'Incorrect field type: password'});
+	}
+
+	password = password.trim();
+
+	if (password === '') {
+		return res.status(422).json({message: 'Incorrect field length: password'});
+	}
+
+	return User
+	.find({username})
+	.exec()
+	.then(count => {
+		if (count > 0) {
+			return res.status(422).json({message: 'username already exists'});
+		}
+		return User.hashPassword(password)
+	})
+	.then(hash => {
+		return User
+		.create({
+			username: username,
+			password: hash,
+			firstName: firstName,
+			lastName: lastName
+		})
+	})
+	.then(user => {
+		return res.status(201).json(user.apiRepr());
+	})
+	.catch(err => {
+		res.status(500).json({message: `Internal server error, ${err}`})
+	});
+});
+
 
 app.post('/posts', (req, res) => {
   const requiredFields = ['title', 'content', 'author'];
