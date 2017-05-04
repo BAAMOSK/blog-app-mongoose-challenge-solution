@@ -11,22 +11,22 @@ const blogPostSchema = mongoose.Schema({
   created: {type: Date, default: Date.now}
 });
 
-const User = mongoose.Schema({
-  username: String,
-  password: {type: String},
+const UserSchema = mongoose.Schema({
+  username: {type: String, unique: true},
+  password: String,
   firstName: String,
   lastName: String,
 });
 
-User.method.hashPassword = function(password) {
-  return bcrypt.hash(password, 10);
+UserSchema.statics.hashPassword = function(password) {
+  return bcrypt.hash(password, 10).then(hash => hash);
 };
 
-User.method.validatePassword = function(password) {
-  return bcrypt.compare(password, this.password);
+UserSchema.methods.validatePassword = function(password) {
+  return bcrypt.compare(password, this.password).then(isValid => isValid);
 };
 
-User.method.apiRepr = function() {
+UserSchema.methods.apiRepr = function() {
   return {
     username: this.username,
     firstName: this.firstName,
@@ -49,5 +49,5 @@ blogPostSchema.methods.apiRepr = function() {
 };
 
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
-
-module.exports = {BlogPost};
+const User = mongoose.model('UserSchema', UserSchema);
+module.exports = {BlogPost, User};
