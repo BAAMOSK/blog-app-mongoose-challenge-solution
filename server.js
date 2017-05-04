@@ -8,7 +8,8 @@ const {
 	PORT
 } = require('./config');
 const {
-	BlogPost
+	BlogPost,
+	User
 } = require('./models');
 
 const app = express();
@@ -45,6 +46,16 @@ app.get('/posts/:id', (req, res) => {
   });
 });
 });
+
+app.get('/users', (req, res) => {
+	User
+	.find()
+	.exec()
+	.then(users => {
+		console.log('hello');
+		res.status(201).json(users);
+	})
+})
 
 app.post('/posts', (req, res) => {
   const requiredFields = ['title', 'content', 'author'];
