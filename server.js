@@ -5,14 +5,8 @@ const morgan = require('morgan');
 const passport = require('passport');
 const {BasicStrategy} = require('passport-http')
 
-const {
-	DATABASE_URL,
-	PORT
-} = require('./config');
-const {
-	BlogPost,
-	User
-} = require('./models');
+const {DATABASE_URL,PORT} = require('./config');
+const {BlogPost,User} = require('./models');
 
 const app = express();
 
@@ -78,10 +72,7 @@ app.get('/users', (req, res) => {
 	User
 	.find()
 	.exec()
-	.then(users => {
-		console.log('hello');
-		res.status(201).json(users);
-	})
+	.then(users => res.json(users.map(user => user.apiRepr())))
 })
 app.post('/users', (req, res) => {
 	if (!req.body) {
@@ -144,31 +135,30 @@ app.post('/users', (req, res) => {
 });
 
 
-app.post('/posts', (req, res) => {
-  const requiredFields = ['title', 'content', 'author'];
-  for (let i = 0; i < requiredFields.length; i++) {
-    const field = requiredFields[i];
+app.post('/posts',
+  passport.authenticate('basic', {session: false}),
+  (req, res) => {
+  const requiredFields = ['title', 'content'];
+  requiredFields.forEach(field => {
     if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`;
-      console.error(message);
-      return res.status(400).send(message);
-    }
-  }
+      res.status(400).json(
+        {error: `Missing "${field}" in request body`});
+    }});
 
   BlogPost
-		.create({
-  title: req.body.title,
-  content: req.body.content,
-  author: req.body.author
-})
-		.then(blogPost => res.status(201).json(blogPost.apiRepr()))
-		.catch(err => {
-  console.error(err);
-  res.status(500).json({
-    error: 'Something went wrong'
-  });
-});
-
+    .create({
+      title: req.body.title,
+      content: req.body.content,
+      author: {
+        firstName: req.user.firstName,
+        lastName: req.user.lastName
+      }
+    })
+    .then(blogPost => res.status(201).json(blogPost.apiRepr()))
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({error: 'Something went wrong'});
+    });
 });
 
 
