@@ -75,6 +75,7 @@ app.get('/users', (req, res) => {
 	.then(users => res.json(users.map(user => user.apiRepr())))
 })
 app.post('/users', (req, res) => {
+	//put this jank in a function
 	if (!req.body) {
     return res.status(400).json({message: 'No request body'});
   }
@@ -135,9 +136,7 @@ app.post('/users', (req, res) => {
 });
 
 
-app.post('/posts',
-  passport.authenticate('basic', {session: false}),
-  (req, res) => {
+app.post('/posts', passport.authenticate('basic', {session: false}), (req, res) => {
   const requiredFields = ['title', 'content'];
   requiredFields.forEach(field => {
     if (!(field in req.body)) {
