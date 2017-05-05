@@ -39,6 +39,7 @@ const basicStrategy = new BasicStrategy((username, password, callback) => {
 
 passport.use(basicStrategy);
 app.use(passport.initialize());
+// app.use(passport.session());
 
 app.get('/posts', (req, res) => {
   BlogPost
@@ -76,39 +77,8 @@ app.get('/users', (req, res) => {
 })
 app.post('/users', (req, res) => {
 	//put this jank in a function
-	if (!req.body) {
-    return res.status(400).json({message: 'No request body'});
-  }
-
-  if (!('username' in req.body)) {
-    return res.status(422).json({message: 'Missing field: username'});
-  }
-
+  userChecks();
   let {username, password, firstName, lastName} = req.body;
-
-  if (typeof username !== 'string') {
-    return res.status(422).json({message: 'Incorrect field type: username'});
-  }
-	username = username.trim();
-
-	if (username === '') {
-		return res.status(422).json({message: 'Incorrect field length: username'});
-	}
-
-	if (!(password)) {
-		return res.status(422).json({message: 'Missing field: password'});
-	}
-
-	if (typeof password !== 'string') {
-		return res.status(422).json({message: 'Incorrect field type: password'});
-	}
-
-	password = password.trim();
-
-	if (password === '') {
-		return res.status(422).json({message: 'Incorrect field length: password'});
-	}
-
 	return User
 	.find({username})
 	.exec()
@@ -247,6 +217,38 @@ function runServer(databaseUrl = DATABASE_URL, port = PORT) {
 });
     });
   });
+}
+
+function userChecks() {
+  if (!req.body) {
+    return res.status(400).json({message: 'No request body'});
+  }
+
+  if (!('username' in req.body)) {
+    return res.status(422).json({message: 'Missing field: username'});
+  }
+  if (typeof username !== 'string') {
+    return res.status(422).json({message: 'Incorrect field type: username'});
+  }
+  username = username.trim();
+
+  if (username === '') {
+    return res.status(422).json({message: 'Incorrect field length: username'});
+  }
+
+  if (!(password)) {
+    return res.status(422).json({message: 'Missing field: password'});
+  }
+
+  if (typeof password !== 'string') {
+    return res.status(422).json({message: 'Incorrect field type: password'});
+  }
+
+  password = password.trim();
+
+  if (password === '') {
+    return res.status(422).json({message: 'Incorrect field length: password'});
+  }
 }
 
 // this function closes the server, and returns a promise. we'll
